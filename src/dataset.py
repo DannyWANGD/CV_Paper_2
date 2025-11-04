@@ -85,32 +85,40 @@ class BSDS500Dataset(Dataset):
             edge = self.edge_transform(edge)
 
         # Edge tensor from ToTensor() is already in [0,1]; binarize using configured threshold
-        edge = (edge > self.config.edge_threshold).float()
+        edge = (edge >= self.config.edge_threshold).float()
 
         return image, edge
 
     def _get_transformations(self) -> Tuple[T.Compose, T.Compose]:
-        """Constructs the appropriate transformations for images and edges."""
-        # Common transforms for both images and edges
-        common_transforms = []
-        common_transforms.append(T.Resize(self.config.resize_dim, interpolation=T.InterpolationMode.BILINEAR))
-        
-        # Augmentation (for training split only)
+        """Construct transformations for images and edges with proper interpolation.
+        Images use bilinear interpolation and normalization; edges use nearest interpolation.
+        """
+        image_transforms: List = []
+        edge_transforms: List = []
+
+        # Resize with different interpolation for image vs. edge
+        image_transforms.append(T.Resize(self.config.resize_dim, interpolation=T.InterpolationMode.BILINEAR))
+        edge_transforms.append(T.Resize(self.config.resize_dim, interpolation=T.InterpolationMode.NEAREST))
+
+        # Augmentations (training only)
         if self.split == 'train' and self.augment:
             if self.config.random_flip:
-                common_transforms.append(T.RandomHorizontalFlip())
-        
-        # Image-specific transforms (with color jitter and normalization)
-        image_transforms = common_transforms.copy()
-        if self.split == 'train' and self.augment and self.config.color_jitter:
-            image_transforms.append(T.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.1))
+                image_transforms.append(T.RandomHorizontalFlip())
+                edge_transforms.append(T.RandomHorizontalFlip())
+            # Random affine (rotation/scale) with synchronized RNG in __getitem__
+            if getattr(self.config, 'random_rotate', False) or getattr(self.config, 'random_scale', False):
+                degrees = self.config.rotate_degrees if getattr(self.config, 'random_rotate', False) else 0
+                scale = self.config.scale_range if getattr(self.config, 'random_scale', False) else None
+                image_transforms.append(T.RandomAffine(degrees=degrees, scale=scale, interpolation=T.InterpolationMode.BILINEAR))
+                edge_transforms.append(T.RandomAffine(degrees=degrees, scale=scale, interpolation=T.InterpolationMode.NEAREST))
+            if self.config.color_jitter:
+                image_transforms.append(T.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.1))
+
+        # Finalize pipelines
         image_transforms.append(T.ToTensor())
         image_transforms.append(T.Normalize(mean=self.config.mean, std=self.config.std))
-        
-        # Edge-specific transforms (only ToTensor, no normalization)
-        edge_transforms = common_transforms.copy()
         edge_transforms.append(T.ToTensor())
-        
+
         return T.Compose(image_transforms), T.Compose(edge_transforms)
 
 def create_dataloader(data_config: DataConfig, train_config: TrainConfig, split: str, augment: bool) -> DataLoader:

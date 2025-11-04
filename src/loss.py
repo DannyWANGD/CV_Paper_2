@@ -8,6 +8,25 @@ from typing import Dict
 
 from config import TrainConfig
 
+def focal_loss_with_logits(logits: torch.Tensor, target: torch.Tensor, alpha: float = 0.25, gamma: float = 2.0) -> torch.Tensor:
+    """Focal loss for binary classification with logits input.
+    Args:
+        logits: (B, 1, H, W) raw scores
+        target: (B, 1, H, W) binary labels
+        alpha: balance factor for positive class
+        gamma: focusing parameter
+    Returns:
+        Mean focal loss
+    """
+    # BCE with logits per-pixel
+    bce = torch.nn.functional.binary_cross_entropy_with_logits(logits, target, reduction='none')
+    prob = torch.sigmoid(logits)
+    # p_t = p if y=1 else (1-p)
+    p_t = prob * target + (1 - prob) * (1 - target)
+    modulating = (1.0 - p_t) ** gamma
+    alpha_t = alpha * target + (1 - alpha) * (1 - target)
+    loss = alpha_t * modulating * bce
+    return loss.mean()
 def weighted_bce_loss(pred: torch.Tensor, target: torch.Tensor, pos_weight: float, neg_weight: float) -> torch.Tensor:
     """
     Calculates a weighted binary cross-entropy loss.
@@ -75,16 +94,24 @@ class EdgeDetectionLoss(nn.Module):
         Returns:
             Dict[str, torch.Tensor]: A dictionary containing the total loss and individual loss components.
         """
-        # BCE Loss
-        bce = weighted_bce_loss(
-            pred_logits, 
-            target, 
-            self.config.bce_pos_weight, 
-            self.config.bce_neg_weight
-        )
+        # Classification loss: Weighted BCE or Focal
+        if self.config.use_focal_loss:
+            bce = focal_loss_with_logits(
+                pred_logits,
+                target,
+                alpha=self.config.focal_alpha,
+                gamma=self.config.focal_gamma
+            )
+        else:
+            bce = weighted_bce_loss(
+                pred_logits,
+                target,
+                self.config.bce_pos_weight,
+                self.config.bce_neg_weight
+            )
         
         # Dice Loss
-        dice = dice_loss(pred_logits, target)
+        dice = dice_loss(pred_logits, target) if self.config.use_dice else torch.tensor(0.0, device=pred_logits.device)
         
         # Total Loss
         total_loss = (self.config.bce_weight * bce) + (self.config.dice_weight * dice)

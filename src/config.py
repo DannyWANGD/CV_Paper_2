@@ -43,6 +43,10 @@ class DataConfig:
     # Augmentation
     random_flip: bool = True
     color_jitter: bool = True
+    random_rotate: bool = True
+    rotate_degrees: int = 10
+    random_scale: bool = True
+    scale_range: Tuple[float, float] = (0.9, 1.1)
 
 # --- 4. Training Configuration ---
 @dataclass
@@ -56,8 +60,18 @@ class TrainConfig:
     # Loss weights
     bce_weight: float = 1.0
     dice_weight: float = 0.5
-    bce_pos_weight: float = 5.0  # Weight for edge pixels (increased for class imbalance)
-    bce_neg_weight: float = 0.5  # Weight for non-edge pixels
+    use_dice: bool = True
+    # BCE weights (used when not using focal loss)
+    bce_pos_weight: float = 8.0  # Stronger weight for edge pixels
+    bce_neg_weight: float = 0.25  # Lower weight for non-edge pixels
+    # Focal Loss settings
+    use_focal_loss: bool = True
+    focal_alpha: float = 0.25
+    focal_gamma: float = 2.0
+    # Optimization strategies
+    warmup_epochs: int = 3
+    grad_clip_norm: float = 1.0
+    seed: int = 42
     # Early stopping
     early_stopping_patience: int = 10  # Number of epochs to wait before stopping
     early_stopping_min_delta: float = 0.001  # Minimum change to qualify as improvement
