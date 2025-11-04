@@ -176,7 +176,7 @@ def main():
 
     parser.add_argument('--checkpoint', type=str, default=default_checkpoint,
                         help='Path to model checkpoint')
-    parser.add_argument('--num_samples', type=int, default=5,
+    parser.add_argument('--num_samples', type=int, default=15,
                         help='Number of samples to visualize')
     parser.add_argument('--output_dir', type=str, default=default_output_dir,
                         help='Directory to save visualizations')
