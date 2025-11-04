@@ -1,0 +1,18 @@
+# Core deep learning framework
+torch
+torchvision
+
+# Data processing and scientific computing
+numpy
+scipy
+scikit-image
+scikit-learn
+
+# Image handling
+Pillow
+
+# Progress bars
+tqdm
+
+# Plotting and visualization
+matplotlib

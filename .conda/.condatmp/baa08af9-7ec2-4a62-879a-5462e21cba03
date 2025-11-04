@@ -1,0 +1,13 @@
+prefix=c:/Users/Administrator/Desktop/CV_Paper_2/.conda/Library
+exec_prefix=c:/Users/Administrator/Desktop/CV_Paper_2/.conda/Library
+libdir=c:/Users/Administrator/Desktop/CV_Paper_2/.conda/Library/lib
+sharedlibdir=c:/Users/Administrator/Desktop/CV_Paper_2/.conda/Library/lib
+includedir=c:/Users/Administrator/Desktop/CV_Paper_2/.conda/Library/include
+
+Name: zlib
+Description: zlib compression library
+Version: 1.3.1
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz
+Cflags: -I${includedir}

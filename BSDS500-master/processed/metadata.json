@@ -1,0 +1,27 @@
+{
+  "dataset_root": "c:\\Users\\Administrator\\Desktop\\CV_Paper_2\\BSDS500-master\\BSDS500\\data",
+  "output_dir": "c:\\Users\\Administrator\\Desktop\\CV_Paper_2\\BSDS500-master\\processed",
+  "splits": [
+    {
+      "split": "train",
+      "count": 200,
+      "list_file": "c:\\Users\\Administrator\\Desktop\\CV_Paper_2\\BSDS500-master\\processed\\splits\\train.txt",
+      "images_dir": "c:\\Users\\Administrator\\Desktop\\CV_Paper_2\\BSDS500-master\\processed\\images\\train",
+      "edges_dir": "c:\\Users\\Administrator\\Desktop\\CV_Paper_2\\BSDS500-master\\processed\\edges\\train"
+    },
+    {
+      "split": "val",
+      "count": 100,
+      "list_file": "c:\\Users\\Administrator\\Desktop\\CV_Paper_2\\BSDS500-master\\processed\\splits\\val.txt",
+      "images_dir": "c:\\Users\\Administrator\\Desktop\\CV_Paper_2\\BSDS500-master\\processed\\images\\val",
+      "edges_dir": "c:\\Users\\Administrator\\Desktop\\CV_Paper_2\\BSDS500-master\\processed\\edges\\val"
+    },
+    {
+      "split": "test",
+      "count": 200,
+      "list_file": "c:\\Users\\Administrator\\Desktop\\CV_Paper_2\\BSDS500-master\\processed\\splits\\test.txt",
+      "images_dir": "c:\\Users\\Administrator\\Desktop\\CV_Paper_2\\BSDS500-master\\processed\\images\\test",
+      "edges_dir": "c:\\Users\\Administrator\\Desktop\\CV_Paper_2\\BSDS500-master\\processed\\edges\\test"
+    }
+  ]
+}
