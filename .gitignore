@@ -211,6 +211,10 @@ __marimo__/
 output/
 output/checkpoints/
 
+# Track visualizations inside output
+!output/visualizations/
+!output/visualizations/**
+
 # Ignore large model weights
 best_model*.pth
 
