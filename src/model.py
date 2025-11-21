@@ -21,13 +21,13 @@ class ResNetBackbone(nn.Module):
     def __init__(self, backbone_name: str = 'resnet34', pretrained: bool = True):
         super().__init__()
         if backbone_name == 'resnet34':
-            weights = ResNet34_Weights.IMAGENET1K_V1 if pretrained else None
-            base_model = models.resnet34(weights=weights)
-            self.out_channels = [64, 64, 128, 256, 512]
+            weights = ResNet34_Weights.IMAGENET1K_V1 if pretrained else None # Use IMAGENET1K_V1 weights if pretrained
+            base_model = models.resnet34(weights=weights) # Load ResNet34 with specified weights
+            self.out_channels = [64, 64, 128, 256, 512] # Output channels from each stage
         elif backbone_name == 'resnet50':
-            weights = ResNet50_Weights.IMAGENET1K_V1 if pretrained else None
-            base_model = models.resnet50(weights=weights)
-            self.out_channels = [64, 256, 512, 1024, 2048]
+            weights = ResNet50_Weights.IMAGENET1K_V1 if pretrained else None # Use IMAGENET1K_V1 weights if pretrained
+            base_model = models.resnet50(weights=weights) # Load ResNet50 with specified weights
+            self.out_channels = [64, 256, 512, 1024, 2048] # Output channels from each stage
         else:
             raise ValueError(f"Unsupported backbone: {backbone_name}")
 
@@ -52,21 +52,21 @@ class ResNetBackbone(nn.Module):
 # --- 2. Transformer Encoder ---
 class TransformerEncoder(nn.Module):
     """Transformer encoder to model global relationships."""
-    def __init__(self, d_model: int, nhead: int, num_layers: int, dim_feedforward: int, dropout: float):
+    def __init__(self, d_model: int, nhead: int, num_layers: int, dim_feedforward: int, dropout: float): # 定义一个单层的 Transformer 编码器。
         super().__init__()
         encoder_layer = nn.TransformerEncoderLayer(
-            d_model=d_model, 
-            nhead=nhead, 
-            dim_feedforward=dim_feedforward, 
-            dropout=dropout, 
-            activation='relu',
-            batch_first=True
+            d_model=d_model, # Input dimension (embedding size)
+            nhead=nhead, # Number of attention heads
+            dim_feedforward=dim_feedforward, # Dimension of the feedforward network model(4倍 d_model)
+            dropout=dropout, # Dropout probability
+            activation='relu', # Activation function
+            batch_first=True # Expect input in (batch, seq_len, d_model) format
         )
-        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers) # Stack multiple encoder layers
 
     def forward(self, src: torch.Tensor, pos_embed: torch.Tensor) -> torch.Tensor:
         """Forward pass with positional encoding."""
-        return self.transformer_encoder(src + pos_embed)
+        return self.transformer_encoder(src + pos_embed) # Add positional encoding before encoding
 
 # --- 3. Decoder Components ---
 class AttentionGate(nn.Module):

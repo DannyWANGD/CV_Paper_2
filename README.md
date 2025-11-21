@@ -117,7 +117,7 @@ python src/visualize.py --plot_curves
 
 文件：`src/model.py`
 
-- Backbone（ResNet34/50）：来自 `torchvision`，可加载 ImageNet 预训练权重（`ModelConfig.pretrained=True`）。输出多尺度特征 `f0..f4`。
+- Backbone（ResNet34/50）：来自 `torchvision`，可加载 ImageNet 预训练权重（`ModelConfig.pretrained=True`）。输出多尺度特征 `f0..f4`，其中`f0`为浅层信息，空间分辨率高，但语义信息小，。主要包含了边缘、纹理、颜色等低级细节信息；而`f4`空间分辨率最低，但语义信息较丰富，包含了“图像里大概有什么物体”这样的高级抽象信息。
 - Transformer Encoder：将最高层特征投影为 token（`1x1 conv` 到 `d_model`），加 2D 正弦位置编码，使用 `nn.TransformerEncoder` 建模全局关系。
 - U-Net 风格 Decoder：逐步上采样并与 `f3/f2/f1/f0` 做跳跃连接；支持 Attention Gate（可开关）。
 - Edge Head：两层 `Conv3x3+BN+ReLU` 后接 `Conv1x1` 输出边缘 logits（1 通道）。
